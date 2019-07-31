@@ -13,7 +13,7 @@ return [
     
     'Free local classified ads in the World' => 'Cung Cấp quảng cáo miễn phí trên thế giới',
     'Free local classified ads in :location' => 'Cung Cấp quảng cáo miễn phí tại :location',
-	'Sell and buy near you' => 'Tìm nơi cung cấp ở gần bạn',
+	'Sell and buy near you' => 'Cung cấp ở gần bạn',
 	'Simple, fast and efficient' => 'Đơn giản, nhanh chóng và hiệu quả',
     'Daily good deals' => 'Giao dịch tốt hàng ngày',
     'Daily good deals in :location' => 'Giao dịch tốt hàng ngày trong :location',
@@ -339,7 +339,7 @@ return [
     'Password Confirmation' => 'Xác nhận mật khẩu',
     'Reset the Password' => 'Đặt lại mật khẩu',
     
-    ':domain, sell and buy near you. Simple, fast and efficient.' => ':domain, tìm nơi cung cấp ở gần bạn Đơn giản, nhanh chóng và hiệu quả.',
+    ':domain, sell and buy near you. Simple, fast and efficient.' => ':domain, cung cấp ở gần bạn Đơn giản, nhanh chóng và hiệu quả.',
     
     'Choose a city' => 'Chọn một thành phố',
     'More cities' => 'Thêm thành phố',
