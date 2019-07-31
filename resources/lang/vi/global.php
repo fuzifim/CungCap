@@ -80,7 +80,7 @@ return [
     'Countries' => 'Nước',
     'Terms' => 'Điều kiện',
     'Privacy' => 'Chính sách',
-    'All Rights Reserved' => 'All Rights Reserved',
+    'All Rights Reserved' => 'Đã đăng ký Bản quyền',
     
     
     // Login
