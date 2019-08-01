@@ -133,7 +133,7 @@ return [
     
     'Post a Free Classified' => 'Đăng một tin cung cấp miễn phí',
     'Do you have something to sell, to rent, any service to offer or a job offer? Post it at :app_name, its free, local, easy, reliable and super fast!' => 'Bạn có một cái gì đó để bán, cho thuê, bất kỳ dịch vụ để cung cấp hoặc cung cấp công việc? Đăng nó tại :app_name, miễn phí, cho doanh nghiệp địa phương và rất dễ sử dụng!',
-    'Create and Manage Items' => 'Create and Manage Items',
+    'Create and Manage Items' => 'Tạo và quản lý các mục',
     'Become a best seller or buyer. Create and Manage your ads. Repost your old ads, etc.' => 'Trở thành một người cung cấp hoặc người mua tốt nhất. Tạo và quản lý quảng cáo của bạn. Đăng lại quảng cáo cũ của bạn, v.v.',
     'Create your Favorite ads list.' => 'Tạo danh sách quảng cáo yêu thích của bạn.',
     'Create your Favorite ads list, and save your searches. Don\'t forget any deal!' => 'Tạo danh sách quảng cáo yêu thích của bạn. Và lưu tìm kiếm của bạn. Đừng quên bất kỳ thỏa thuận.',
