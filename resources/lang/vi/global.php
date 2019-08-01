@@ -141,8 +141,8 @@ return [
     // Post Ads
     'Category' => 'Thể loại',
     'Select a category' => 'Chọn một danh mục',
-    'Sub-Category' => 'Sub-Category',
-    'Select a sub-category' => 'Chọn một sub-category',
+    'Sub-Category' => 'Danh mục con',
+    'Select a sub-category' => 'Chọn một danh mục con',
     'Ad type' => 'Loại quảng cáo',
     'Type' => 'Kiểu',
     'Private' => 'Riêng tư',
