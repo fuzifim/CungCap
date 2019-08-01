@@ -147,7 +147,7 @@ return [
     'Type' => 'Kiểu',
     'Private' => 'Riêng tư',
     'Business' => 'Kinh doanh',
-    'Title' => 'Chức vụ',
+    'Title' => 'Tiêu đề',
     'Ad title' => 'Tiêu đề quảng cáo',
     'Post title' => 'Tiêu đề bài',
     'A great title needs at least 60 characters.' => 'Một tiêu đề tuyệt vời cần ít nhất 60 ký tự.',
