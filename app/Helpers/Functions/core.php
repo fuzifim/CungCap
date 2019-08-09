@@ -2383,11 +2383,11 @@ function updateIsAvailable()
 	$updateIsAvailable = false;
 	
 	// Get eventual new version value & the current (installed) version value
-	$lastVersionInt = strToInt(config('app.version'));
-	$currentVersionInt = strToInt(getCurrentVersion());
+	$lastVersion = getLatestVersion();
+	$currentVersion = getCurrentVersion();
 	
 	// Check the update
-	if ($lastVersionInt > $currentVersionInt) {
+	if (version_compare($lastVersion, $currentVersion, '>')) {
 		$updateIsAvailable = true;
 	}
 	
@@ -2433,26 +2433,57 @@ function getRawBaseUrl()
 function getCurrentVersion()
 {
 	// Get the Current Version
-	$currentVersion = null;
+	$version = null;
 	if (\Jackiedo\DotenvEditor\Facades\DotenvEditor::keyExists('APP_VERSION')) {
 		try {
-			$currentVersion = \Jackiedo\DotenvEditor\Facades\DotenvEditor::getValue('APP_VERSION');
+			$version = \Jackiedo\DotenvEditor\Facades\DotenvEditor::getValue('APP_VERSION');
 		} catch (\Exception $e) {
 		}
 	}
+	$version = checkAndUseSemVer($version);
 	
-	// Forget the subversion number
-	if (!empty($currentVersion)) {
-		$tmp = explode('.', $currentVersion);
-		if (count($tmp) > 1) {
-			if (count($tmp) >= 3) {
-				$tmp = \Illuminate\Support\Arr::only($tmp, [0, 1]);
+	return $version;
+}
+
+/**
+ * Get the app latest version
+ *
+ * @return \Illuminate\Config\Repository|mixed|string
+ */
+function getLatestVersion()
+{
+	$version = checkAndUseSemVer(config('app.version'));
+	
+	return $version;
+}
+
+/**
+ * Check and use semver version num format
+ *
+ * @param $version
+ * @return string
+ */
+function checkAndUseSemVer($version)
+{
+	$semver = '0.0.0';
+	if (!empty($version)) {
+		$numPattern = '([0-9]+)';
+		if (preg_match('#^' . $numPattern . '\.' . $numPattern . '\.' . $numPattern . '$#', $version)) {
+			$semver = $version;
+		} else {
+			if (preg_match('#^' . $numPattern . '\.' . $numPattern . '$#', $version)) {
+				$semver = $version . '.0';
+			} else {
+				if (preg_match('#^' . $numPattern . '$#', $version)) {
+					$semver = $version . '.0.0';
+				} else {
+					$semver = '0.0.0';
+				}
 			}
-			$currentVersion = implode('.', $tmp);
 		}
 	}
 	
-	return $currentVersion;
+	return $semver;
 }
 
 /**

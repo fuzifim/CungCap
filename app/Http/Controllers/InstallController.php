@@ -750,7 +750,7 @@ class InstallController extends Controller
 		$appHost = getHostByUrl($this->baseUrl);
 		
 		// Get app version
-		$version = config('app.version');
+		$version = getLatestVersion();
 		
 		// Get database & site info
 		$database = $request->session()->get('database');

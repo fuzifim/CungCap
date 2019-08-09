@@ -31,7 +31,6 @@
 	<link rel="apple-touch-icon-precomposed" href="{{ $publicDisk->url('app/default/ico/apple-touch-icon-57-precomposed.png') . getPictureVersion() }}">
 	<link rel="shortcut icon" href="{{ imgUrl(config('settings.app.favicon'), 'favicon') }}">
 	<title>{!! MetaTag::get('title') !!}</title>
-	<meta name='dmca-site-verification' content='TU9BNWlKTzJscEhtZmZ3UnhTRFVKdz090' />
 	{!! MetaTag::tag('description') !!}{!! MetaTag::tag('keywords') !!}
 	@foreach(LaravelLocalization::getSupportedLocales() as $localeCode => $properties)
 		@if (strtolower($localeCode) == strtolower(config('lang.abbr', config('app.locales'))))

@@ -15,7 +15,6 @@
 
 namespace App\Http\Controllers\Search;
 
-use App\Helpers\Search;
 use Torann\LaravelMetaTags\Facades\MetaTag;
 
 class TagController extends BaseController
@@ -41,8 +40,8 @@ class TagController extends BaseController
 		$this->tag = rawurldecode($tag);
 		
 		// Search
-		$search = new Search();
-		$data = $search->setTag($tag)->setRequestFilters()->fetch();
+		$search = new $this->searchClass();
+		$data = $search->setTag($tag)->fetch();
 		
 		// Get Titles
 		$bcTab = $this->getBreadcrumb();

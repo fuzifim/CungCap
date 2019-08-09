@@ -395,7 +395,7 @@ class DBTool
 	 */
 	public static function checkIfMySQLDistanceCalculationFunctionExists($name)
 	{
-		if (!config('settings.listing.cities_extended_searches') || request()->ajax()) {
+		if (request()->ajax()) {
 			return false;
 		}
 		
@@ -430,7 +430,7 @@ class DBTool
 	 */
 	public static function createMySQLDistanceCalculationFunction($name = 'haversine')
 	{
-		if (!config('settings.listing.cities_extended_searches') || request()->ajax()) {
+		if (request()->ajax()) {
 			return false;
 		}
 		
@@ -522,10 +522,10 @@ BEGIN
 	DECLARE c FLOAT;
 	DECLARE d FLOAT;
 	
-	SET lat1 = RADIANS(Y(point1));
-	SET lat2 = RADIANS(Y(point2));
-	SET latDelta = RADIANS(Y(point2) - Y(point1));
-	SET lonDelta = RADIANS(X(point2) - X(point1));
+	SET lat1 = RADIANS(ST_Y(point1));
+	SET lat2 = RADIANS(ST_Y(point2));
+	SET latDelta = RADIANS(ST_Y(point2) - ST_Y(point1));
+	SET lonDelta = RADIANS(ST_X(point2) - ST_X(point1));
 	
 	SET a = SIN(latDelta / 2) * SIN(latDelta / 2) + COS(lat1) * COS(lat2) * SIN(lonDelta / 2) * SIN(lonDelta / 2);
 	SET c = 2 * ATAN2(SQRT(a), SQRT(1-a));
@@ -541,6 +541,31 @@ END;';
 		} catch (\Exception $e) {
 			return false;
 		}
+	}
+	
+	/**
+	 * Get the MySQL Haversine formula as SQL string
+	 *
+	 * @param $point1
+	 * @param $point2
+	 * @return string
+	 */
+	public static function haversineSql($point1, $point2)
+	{
+		$R = 6371000;
+		
+		$lat1 = 'RADIANS(ST_Y(' . $point1 . '))';
+		$lat2 = 'RADIANS(ST_Y(' . $point2 . '))';
+		$latDelta = 'RADIANS(ST_Y(' . $point2 . ') - ST_Y(' . $point1 . '))';
+		$lonDelta = 'RADIANS(ST_X(' . $point2 . ') - ST_X(' . $point1 . '))';
+		
+		$a = 'SIN(' . $latDelta . '/2) * SIN(' . $latDelta . '/2) + COS(' . $lat1 . ') * COS(' . $lat2 . ') * SIN(' . $lonDelta . '/2) * SIN(' . $lonDelta . '/2)';
+		$c = '2 * ATAN2(SQRT(' . $a . '), SQRT(1-' . $a . '))';
+		$formula = $R . ' * ' . $c;
+		
+		$sql = '((' . $formula . ') * 0.00621371192) AS distance';
+		
+		return $sql;
 	}
 	
 	/**
@@ -598,9 +623,9 @@ BEGIN
 	DECLARE c FLOAT UNSIGNED;
 	DECLARE d FLOAT UNSIGNED;
  
-	SET lat1 = RADIANS(Y(point1));
-	SET lat2 = RADIANS(Y(point2));
-	SET lonDelta = RADIANS(X(point2) - X(point1));
+	SET lat1 = RADIANS(ST_Y(point1));
+	SET lat2 = RADIANS(ST_Y(point2));
+	SET lonDelta = RADIANS(ST_X(point2) - ST_X(point1));
 	
 	SET c = ACOS((COS(lat1) * COS(lat2) * COS(lonDelta)) + (SIN(lat1) * SIN(lat2)));
 	SET d = R * c;
@@ -615,5 +640,28 @@ END;';
 		} catch (\Exception $e) {
 			return false;
 		}
+	}
+	
+	/**
+	 * Get the MySQL Orthodromy formula as SQL string
+	 *
+	 * @param $point1
+	 * @param $point2
+	 * @return string
+	 */
+	public static function orthodromySql($point1, $point2)
+	{
+		$R = 6371000;
+		
+		$lat1 = 'RADIANS(ST_Y(' . $point1 . '))';
+		$lat2 = 'RADIANS(ST_Y(' . $point2 . '))';
+		$lonDelta = 'RADIANS(ST_X(point2) - ST_X(point1))';
+		
+		$c = 'ACOS((COS(' . $lat1 . ') * COS(' . $lat2 . ') * COS(' . $lonDelta . ')) + (SIN(' . $lat1 . ') * SIN(' . $lat2 . ')))';
+		$formula = $R . ' * ' . $c;
+		
+		$sql = '((' . $formula . ') * 0.00621371192) AS distance';
+		
+		return $sql;
 	}
 }

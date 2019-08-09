@@ -15,7 +15,6 @@
 
 namespace App\Http\Controllers\Search;
 
-use App\Helpers\Search;
 use App\Models\Category;
 use App\Models\CategoryField;
 use Illuminate\Support\Str;
@@ -84,11 +83,11 @@ class CategoryController extends BaseController
 		view()->share('customFields', $customFields);
 
         // Search
-        $search = new Search();
+        $search = new $this->searchClass();
         if (isset($this->subCat) && !empty($this->subCat)) {
-            $data = $search->setCategory($this->cat->tid, $this->subCat->tid)->setRequestFilters()->fetch();
+            $data = $search->setCategory($this->cat->tid, $this->subCat->tid)->fetch();
         } else {
-            $data = $search->setCategory($this->cat->tid)->setRequestFilters()->fetch();
+            $data = $search->setCategory($this->cat->tid)->fetch();
         }
 
         // Get Titles

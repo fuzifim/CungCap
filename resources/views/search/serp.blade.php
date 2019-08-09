@@ -59,10 +59,10 @@
 							<!-- Nav tabs -->
 							<ul id="postType" class="nav nav-tabs add-tabs tablist" role="tablist">
                                 <?php
-                                $liClass = 'nav-item';
+                                $liClass = 'class="nav-item"';
                                 $spanClass = 'alert-danger';
                                 if (!request()->filled('type') or request()->get('type') == '') {
-                                    $liClass = 'class="active nav-item"';
+                                    $liClass = 'class="nav-item active"';
                                     $spanClass = 'badge-danger';
                                 }
                                 ?>
@@ -78,7 +78,7 @@
                                             $postTypeCount = ($count->has($postType->tid)) ? $count->get($postType->tid) : 0;
                                         ?>
                                         @if (request()->filled('type') && request()->get('type') == $postType->tid)
-                                            <li class="active nav-item">
+                                            <li class="nav-item active">
                                                 <a href="{!! $postTypeUrl !!}" role="tab" data-toggle="tab" class="nav-link">
                                                     {{ $postType->name }}
                                                     <span class="badge badge-pill badge-danger">
@@ -119,7 +119,7 @@
 											value="{!! qsurl($fullUrlNoParams, array_merge(request()->except('orderBy'), ['orderBy'=>'date']), null, false) !!}">
 										{{ t('Date') }}
 									</option>
-									@if (isset($isCitySearch) and $isCitySearch and \App\Helpers\DBTool::checkIfMySQLDistanceCalculationFunctionExists(config('settings.listing.distance_calculation_formula')))
+									@if (isset($isCitySearch) and $isCitySearch and config('settings.listing.cities_extended_searches'))
 										@for($iDist = 0; $iDist <= config('settings.listing.search_distance_max', 500); $iDist += config('settings.listing.search_distance_interval', 50))
 											<option{{ (request()->get('distance', config('settings.listing.search_distance_default', 100))==$iDist) ? ' selected="selected"' : '' }}
 													value="{!! qsurl($fullUrlNoParams, array_merge(request()->except('distance'), ['distance' => $iDist]), null, false) !!}">
@@ -196,7 +196,7 @@
 													{{ t('Date') }}
 												</a>
 											</li>
-											@if (isset($isCitySearch) and $isCitySearch and \App\Helpers\DBTool::checkIfMySQLDistanceCalculationFunctionExists(config('settings.listing.distance_calculation_formula')))
+											@if (isset($isCitySearch) and $isCitySearch and config('settings.listing.cities_extended_searches'))
 												@for($iDist = 0; $iDist <= config('settings.listing.search_distance_max', 500); $iDist += config('settings.listing.search_distance_interval', 50))
 													<li>
 														<a href="{!! qsurl($fullUrlNoParams, array_merge(request()->except('distance'), ['distance' => $iDist]), null, false) !!}" rel="nofollow">

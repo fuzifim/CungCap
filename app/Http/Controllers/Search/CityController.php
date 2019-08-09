@@ -15,7 +15,6 @@
 
 namespace App\Http\Controllers\Search;
 
-use App\Helpers\Search;
 use App\Models\City;
 use Torann\LaravelMetaTags\Facades\MetaTag;
 
@@ -46,8 +45,8 @@ class CityController extends BaseController
         view()->share('city', $this->city);
 
         // Search
-        $search = new Search();
-        $data = $search->setLocationByCityCoordinates($this->city->latitude, $this->city->longitude, $this->city->id)->setRequestFilters()->fetch();
+        $search = new $this->searchClass();
+        $data = $search->setLocationByCity($this->city)->fetch();
 
         // Get Titles
         $bcTab = $this->getBreadcrumb();

@@ -15,7 +15,6 @@
 
 namespace App\Http\Controllers\Search;
 
-use App\Helpers\Search;
 use App\Helpers\UrlGen;
 use App\Models\User;
 use Torann\LaravelMetaTags\Facades\MetaTag;
@@ -79,8 +78,8 @@ class UserController extends BaseController
 	private function searchByUserId($userId, $username = null)
 	{
 		// Search
-		$search = new Search();
-		$data = $search->setUser($userId)->setRequestFilters()->fetch();
+		$search = new $this->searchClass();
+		$data = $search->setUser($userId)->fetch();
 		
 		// Get Titles
 		$bcTab = $this->getBreadcrumb();
