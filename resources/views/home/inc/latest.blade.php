@@ -33,12 +33,12 @@ if (config('settings.listing.display_mode') == '.compact-view') {
 					foreach($posts as $key => $post):
 					if (empty($countries) or !$countries->has($post->country_code)) continue;
 			
-					// Get Pack Info
+					// Get Package Info
 					$package = null;
 					if ($post->featured == 1) {
-						$cacheId = 'package.' . $post->py_package_id . '.' . config('app.locale');
+						$cacheId = 'package.' . $post->package_id . '.' . config('app.locale');
 						$package = \Illuminate\Support\Facades\Cache::remember($cacheId, $cacheExpiration, function () use ($post) {
-							$package = \App\Models\Package::findTrans($post->py_package_id);
+							$package = \App\Models\Package::findTrans($post->package_id);
 							return $package;
 						});
 					}
@@ -81,16 +81,8 @@ if (config('settings.listing.display_mode') == '.compact-view') {
 					// Check parent
 					if (empty($liveCat->parent_id)) {
 						$liveCatParentId = $liveCat->id;
-						$liveCatType = $liveCat->type;
 					} else {
 						$liveCatParentId = $liveCat->parent_id;
-						
-						$cacheId = 'category.' . $liveCat->parent_id . '.' . config('app.locale');
-						$liveParentCat = \Illuminate\Support\Facades\Cache::remember($cacheId, $cacheExpiration, function () use ($liveCat) {
-							$liveParentCat = \App\Models\Category::findTrans($liveCat->parent_id);
-							return $liveParentCat;
-						});
-						$liveCatType = (!empty($liveParentCat)) ? $liveParentCat->type : 'classified';
 					}
 					
 					// Check translation
@@ -147,11 +139,13 @@ if (config('settings.listing.display_mode') == '.compact-view') {
 							
 							<div class="{{ $colPriceBox }} text-right price-box">
 								<h4 class="item-price">
-									@if (isset($liveCatType) and !in_array($liveCatType, ['not-salable']))
-										@if ($post->price > 0)
-											{!! \App\Helpers\Number::money($post->price) !!}
-										@else
-											{!! \App\Helpers\Number::money('--') !!}
+									@if (isset($liveCat->type))
+										@if (!in_array($liveCat->type, ['not-salable']))
+											@if ($post->price > 0)
+												{!! \App\Helpers\Number::money($post->price) !!}
+											@else
+												{!! \App\Helpers\Number::money('--') !!}
+											@endif
 										@endif
 									@else
 										{{ '--' }}
@@ -177,7 +171,7 @@ if (config('settings.listing.display_mode') == '.compact-view') {
 			
 					<div style="clear: both"></div>
 					
-					@if (isset($latestOptions) and isset($latestOptions['show_show_more_btn']) and $latestOptions['show_show_more_btn'] == '1')
+					@if (isset($latestOptions) and isset($latestOptions['show_view_more_btn']) and $latestOptions['show_view_more_btn'] == '1')
 						<div class="mb20 text-center">
 							<?php $attr = ['countryCode' => config('country.icode')]; ?>
 							<a href="{{ lurl(trans('routes.v-search', $attr), $attr) }}" class="btn btn-default mt10">

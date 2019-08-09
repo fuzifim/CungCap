@@ -160,11 +160,19 @@ class City extends BaseModel
 		return preg_replace(['#\s\s+#ui', '#\' #ui'], [' ', "'"], $value);
 	}
 	
+	/**
+	 * @param $value
+	 * @return float
+	 */
 	public function getLatitudeAttribute($value)
 	{
 		return Number::toFloat($value);
 	}
 	
+	/**
+	 * @param $value
+	 * @return float
+	 */
 	public function getLongitudeAttribute($value)
 	{
 		return Number::toFloat($value);

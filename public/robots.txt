@@ -14,4 +14,4 @@ Disallow: /main.php
 Disallow: /mix-manifest.json
 
 
-Sitemap: http://cungcap.local/en/vn/sitemaps.xml
+Sitemap: http://cungcap.local/vi/vn/sitemaps.xml

@@ -35,6 +35,8 @@ class BaseController extends FrontController
 
     public $request;
 	public $countries;
+	
+	public $searchClass;
 
 	/**
      * All Types of Search
@@ -59,6 +61,8 @@ class BaseController extends FrontController
     public function __construct(Request $request)
     {
         parent::__construct();
+        
+        $this->searchClass = config('larapen.core.searchClass');
 
         // From Laravel 5.3.4 or above
         $this->middleware(function ($request, $next) {

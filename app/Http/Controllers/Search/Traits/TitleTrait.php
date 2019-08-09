@@ -18,9 +18,6 @@ namespace App\Http\Controllers\Search\Traits;
 use App\Helpers\DBTool;
 use App\Helpers\UrlGen;
 use Illuminate\Support\Arr;
-use Illuminate\Support\Facades\Request;
-use App\Helpers\Search;
-use Illuminate\Support\Str;
 
 trait TitleTrait
 {
@@ -104,7 +101,7 @@ trait TitleTrait
 	 */
 	public function getHtmlTitle()
 	{
-		$fullUrl = rawurldecode(url(Request::getRequestUri()));
+		$fullUrl = rawurldecode(url(request()->getRequestUri()));
 		$tmpExplode = explode('?', $fullUrl);
 		$fullUrlNoParams = current($tmpExplode);
 		
@@ -142,7 +139,7 @@ trait TitleTrait
 						$htmlTitle .= ' ' . t('within') . ' ';
 						$htmlTitle .= '<a rel="nofollow" class="jobs-s-tag" href="' . $searchUrl . '">';
 						$htmlTitle .= t(':distance :unit around :city', [
-							'distance' => Search::$distance,
+							'distance' => ($this->searchClass::$distance == 1) ? 0 : $this->searchClass::$distance,
 							'unit'     => unitOfLength(config('country.code')),
 							'city'     => $this->city->name]);
 						$htmlTitle .= '</a>';
@@ -236,7 +233,7 @@ trait TitleTrait
 		// City
 		if (isset($this->city) && !empty($this->city)) {
 			$title = t('in :distance :unit around :city', [
-				'distance' => Search::$distance,
+				'distance' => ($this->searchClass::$distance == 1) ? 0 : $this->searchClass::$distance,
 				'unit'     => unitOfLength(config('country.code')),
 				'city'     => $this->city->name,
 			]);

@@ -322,7 +322,12 @@ class UserController extends PanelController
 					], 'update');
 				}
 			}
-			if (auth()->user()->id != request()->segment(3)) {
+			// Only 'super-admin' can assign 'roles' or 'permissions' to users
+			// Also logged admin user cannot manage his own 'role' or 'permissions'
+			if (
+				auth()->user()->can(Permission::getSuperAdminPermissions())
+				&& auth()->user()->id != request()->segment(3)
+			) {
 				$this->xPanel->addField([
 					'name'  => 'separator',
 					'type'  => 'custom_html',

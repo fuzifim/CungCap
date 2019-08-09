@@ -78,10 +78,11 @@ class Clearance
 				|| Str::contains(Route::currentRouteAction(), $userController . '@show')
 				|| Str::contains(Route::currentRouteAction(), $userController . '@destroy')
 			) {
-				if (!auth()->user()->can(Permission::getSuperAdminPermissions())) {
-					// Get the current possible 'super-admin' user ID
-					$userId = request()->segment(3);
-					if (!empty($userId) && is_numeric($userId)) {
+				// Get the current possible 'super-admin' User ID
+				$userId = request()->segment(3);
+				if (!empty($userId) && is_numeric($userId)) {
+					// If the logged admin user has not 'super-admin' role...
+					if (!auth()->user()->can(Permission::getSuperAdminPermissions())) {
 						try {
 							$user = User::withoutGlobalScopes([VerifiedScope::class])
 								->where('id', $userId)

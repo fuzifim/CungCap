@@ -45,17 +45,16 @@ class UpgradeController extends Controller
 		}
 		
 		// Get eventual new version value & the current (installed) version value
-		$lastVersion = config('app.version');
-		$lastVersionInt = strToInt($lastVersion);
-		$currentVersionInt = strToInt(getCurrentVersion());
+		$lastVersion = getLatestVersion();
+		$currentVersion = getCurrentVersion();
 		
 		// All is Up to Date
-		if ($lastVersionInt <= $currentVersionInt) {
+		if (version_compare($lastVersion, $currentVersion, '<=')) {
 			abort(401);
 		}
 		
 		// Installed version number is NOT found
-		if ($currentVersionInt < 10) {
+		if (version_compare('1.0.0', $currentVersion, '>')) {
 			$message = "<strong style='color:red;'>ERROR:</strong> Cannot find your current version from the '/.env' file.<br><br>";
 			$message .= "<br><strong style='color:green;'>SOLUTION:</strong>";
 			$message .= "<br>1. You have to add in the '/.env' file a line like: <strong>APP_VERSION=X.X</strong> (Don't forget to replace <strong>X.X</strong> by your current version)";
@@ -72,7 +71,7 @@ class UpgradeController extends Controller
 		$this->clearCache();
 		
 		// Upgrade the Database
-		$res = $this->upgradeDatabase($currentVersionInt, $lastVersionInt);
+		$res = $this->upgradeDatabase($lastVersion, $currentVersion);
 		if ($res === false) {
 			dd('ERROR');
 		}
@@ -102,35 +101,51 @@ class UpgradeController extends Controller
 	/**
 	 * Upgrade the Database & Apply actions
 	 *
-	 * @param $currentVersion
 	 * @param $lastVersion
+	 * @param $currentVersion
 	 * @return bool
 	 */
-	private function upgradeDatabase($currentVersion, $lastVersion)
+	private function upgradeDatabase($lastVersion, $currentVersion)
 	{
+		$migrationFilesPath = base_path('database/upgrade/');
+		$migrationFilesPath = rtrim($migrationFilesPath, DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR;
+		$versionsDirsPaths = array_filter(glob($migrationFilesPath . '*'), 'is_dir');
+		
 		$errorDetect = false;
 		$errors = '';
 		
 		try {
 			// Upgrade the website database version by version
-			for ($i = $currentVersion; $i <= $lastVersion; $i++) {
-				// Current Update versions values
-				$from = $i;
-				$to = ($from == 17) ? 20 : $from + 1;
+			foreach ($versionsDirsPaths as $versionPath) {
+				// Get the iterated version
+				$version = last(explode(DIRECTORY_SEPARATOR, $versionPath));
 				
-				$updateFile = base_path('database/upgrade/from-' . $from . '-to-' . $to . '/update.php');
-				if (File::exists($updateFile)) {
-					require_once($updateFile);
+				// Check the semver format
+				if (!preg_match('#^([0-9]+)\.([0-9]+)\.([0-9]+)$#', $version)) {
+					continue;
 				}
 				
-				$updateSqlFile = base_path('database/upgrade/from-' . $from . '-to-' . $to . '/update.sql');
-				if (File::exists($updateSqlFile)) {
-					// Import the SQL file
-					$res = DBTool::importSqlFile(DB::connection()->getPdo(), $updateSqlFile, DB::getTablePrefix());
-					if ($res === false) {
-						$errorDetect = true;
-						$errors .= '<br>Error occurred in the file: ' . $updateSqlFile;
+				// Load and Apply migration & SQL (queries) files of the "iterated versions",
+				// that are greater than the "website current version" && are lower than or equal to the "app's latest version"
+				if (version_compare($version, $currentVersion, '>') && version_compare($version, $lastVersion, '<=')) {
+					
+					// Load and apply update migration
+					$updateFile = $migrationFilesPath . $version . '/update.php';
+					if (File::exists($updateFile)) {
+						require_once($updateFile);
 					}
+					
+					// Load and execute SQL queries
+					$updateSqlFile = $migrationFilesPath . $version . '/update.sql';
+					if (File::exists($updateSqlFile)) {
+						// Import the SQL file
+						$res = DBTool::importSqlFile(DB::connection()->getPdo(), $updateSqlFile, DB::getTablePrefix());
+						if ($res === false) {
+							$errorDetect = true;
+							$errors .= '<br>Error occurred in the file: ' . $updateSqlFile;
+						}
+					}
+					
 				}
 			}
 			
