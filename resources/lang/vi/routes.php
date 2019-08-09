@@ -35,3 +35,4 @@ return [
     't-search-tag' => 'tag',
     'v-search-tag' => 'tag/:tag',
 ];
+
