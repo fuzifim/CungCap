@@ -2252,35 +2252,104 @@ function zeroLead($number, $padLength = 2)
 }
 
 /**
- * @param $number
+ * Check if a country is a miles using country
+ *
  * @param null $countryCode
- * @return int|string
+ * @return bool
  */
-function lengthPrecision($number, $countryCode = null)
+function isMilesUsingCountry($countryCode = null)
 {
 	if (empty($countryCode)) {
 		$countryCode = config('country.code');
 	}
 	
-	// Get mile use countries
-	$mileUseCountries = (array)config('larapen.core.mileUseCountries');
+	if (in_array($countryCode, (array)config('larapen.core.mileUseCountries'))) {
+		return true;
+	}
 	
-	if (is_numeric($number)) {
-		// Anglo-Saxon units of length
-		if (in_array($countryCode, $mileUseCountries)) {
-			// Convert Km to Miles
-			$number = $number * 0.621;
-		}
+	return false;
+}
+
+/**
+ * Convert Distance Unit
+ *
+ * @param $number
+ * @param null $countryCode
+ * @return float|int|string
+ */
+function convertDistanceUnit($number, $countryCode = null)
+{
+	if (empty($countryCode)) {
+		$countryCode = config('country.code');
+	}
+	
+	// If the Country uses Miles unit, then convert the displayed number from Miles To Km.
+	// If not, convert the displayed number from Km To Miles.
+	if (isMilesUsingCountry($countryCode)) {
+		$number = milesToKm($number);
+	} else {
+		$number = kmToMiles($number);
 	}
 	
 	return $number;
 }
 
 /**
+ * Miles To Kilometers
+ *
+ *
+ * Formula:
+ * Km = Mi * 0.62137119 (1 km = 0.62137119 mi)
+ * m = Yard * 0.9144 (1 m = 0.9144 yd)
+ *
+ * Other:
+ * 1 Km = 1000 m
+ * 1 m = 0.001
+ *
+ * @param $number
+ * @return float
+ */
+function milesToKm($number)
+{
+	// Convert Miles To Km
+	if (is_float($number) || is_numeric($number)) {
+		$number = $number * 0.62137119;
+	}
+	
+	return $number;
+}
+
+/**
+ * Kilometers To Miles
+ *
+ * Formula:
+ * Mi = Km * 1.609344 (1 mi = 1.609344 km)
+ * Yard = m * 1.09361 (1 yd = 1.09361 m)
+ *
+ * Other:
+ * 1 Mi = 1760 Yards
+ * 1 Yard = 0.000568182
+ *
+ * @param $number
+ * @return float
+ */
+function kmToMiles($number)
+{
+	// Convert Km To Miles
+	if (is_float($number) || is_numeric($number)) {
+		$number = $number * 1.609344;
+	}
+	
+	return $number;
+}
+
+/**
+ * Get the Distance Calculation Unit
+ *
  * @param null $countryCode
  * @return string
  */
-function unitOfLength($countryCode = null)
+function getDistanceUnit($countryCode = null)
 {
 	if (empty($countryCode)) {
 		$countryCode = config('country.code');

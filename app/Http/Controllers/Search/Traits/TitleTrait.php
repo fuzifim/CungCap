@@ -140,7 +140,7 @@ trait TitleTrait
 						$htmlTitle .= '<a rel="nofollow" class="jobs-s-tag" href="' . $searchUrl . '">';
 						$htmlTitle .= t(':distance :unit around :city', [
 							'distance' => ($this->searchClass::$distance == 1) ? 0 : $this->searchClass::$distance,
-							'unit'     => unitOfLength(config('country.code')),
+							'unit'     => getDistanceUnit(config('country.code')),
 							'city'     => $this->city->name]);
 						$htmlTitle .= '</a>';
 					} else {
@@ -234,7 +234,7 @@ trait TitleTrait
 		if (isset($this->city) && !empty($this->city)) {
 			$title = t('in :distance :unit around :city', [
 				'distance' => ($this->searchClass::$distance == 1) ? 0 : $this->searchClass::$distance,
-				'unit'     => unitOfLength(config('country.code')),
+				'unit'     => getDistanceUnit(config('country.code')),
 				'city'     => $this->city->name,
 			]);
 			

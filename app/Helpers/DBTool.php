@@ -452,16 +452,26 @@ class DBTool
 	}
 	
 	/**
-	 * Create the MySQL Haversine function
+	 * Get MySQL Point Property Functions (related to the MySQL version)
 	 *
-	 * This is a polyfill of the MySQL 'ST_Distance_Sphere' function using the Haversine formula.
-	 *
-	 * USAGE:
-	 * (haversine(point(lon1, lat1), point(lon2, lat2)) * 0.00621371192) as distance
-	 *
-	 * @return bool
+	 * @param $property
+	 * @return string
 	 */
+	public static function getMySQLPointPropertyFunc($property)
+	{
+		$properties = ['X', 'Y'];
+		
+		if (in_array($property, $properties)) {
+			if (DBTool::isMySqlMinVersion('5.7.6')) {
+				$property = 'ST_' . $property;
+			}
+		}
+		
+		return $property;
+	}
+	
 	/*
+	========================================================================================================================
 	Haversine Formula
 	=================
 	The haversine formula is an equation important in navigation,
@@ -472,14 +482,14 @@ class DBTool
 	a = sin²(Δφ/2) + cos φ1 ⋅ cos φ2 ⋅ sin²(Δλ/2)
 	c = 2 ⋅ atan2( √a, √(1−a) )
 	d = R ⋅ c
-	Where: φ (Phi) is latitude, λ (Lambda) is longitude, R is earth's radius (mean radius = 6,371km);
+	Where: φ (Phi) is latitude, λ (Lambda) is longitude, R is Earth's radius (Radius = 6371 km (3959 mi));
 	Note that angles need to be in radians to pass to trig functions!
 	-----
 	3959 * acos(cos(radians('.$lat.')) * cos(radians(a.lat)) * cos(radians(a.lon) - radians('.$lon.')) + sin(radians('.$lat.')) * sin(radians(a.lat)))) as distance
 	
 	JavaScript
 	==========
-	var R = 6371e3; // metres
+	var R = 6371e3; // metres (Calculation: 6371 km x 1000 = 6371000 m (metres) || 3959mi x 1760 = 6967840 yd (yards))
 	var φ1 = lat1.toRadians();
 	var φ2 = lat2.toRadians();
 	var Δφ = (lat2-lat1).toRadians();
@@ -496,10 +506,28 @@ class DBTool
 	=======
 	http://www.movable-type.co.uk/scripts/latlong.html
 	https://developers.google.com/maps/solutions/store-locator/clothing-store-locator#findnearsql
+	========================================================================================================================
 	*/
+	/**
+	 * Create the MySQL Haversine function
+	 *
+	 * This is a polyfill of the MySQL 'ST_Distance_Sphere' function using the Haversine formula.
+	 *
+	 * USAGE:
+	 * haversine(point(lon1, lat1), point(lon2, lat2)) as distance
+	 *
+	 * NOTE:
+	 * Replace 6371 (the 'R' value) with 3958.756 if you want the answer in miles.
+	 *
+	 * @return bool
+	 */
 	public static function createMySQLHaversineFunction()
 	{
 		try {
+			
+			// Point Property Functions
+			$ptX = DBTool::getMySQLPointPropertyFunc('X');
+			$ptY = DBTool::getMySQLPointPropertyFunc('Y');
 			
 			// Drop the function, If exists
 			$sql = 'DROP FUNCTION IF EXISTS haversine;';
@@ -513,7 +541,7 @@ class DBTool
 	NO SQL DETERMINISTIC
 	COMMENT "Returns the distance in degrees on the Earth between two known points of latitude and longitude."
 BEGIN
-	DECLARE R INTEGER DEFAULT 6371000;
+	DECLARE R INTEGER DEFAULT 6371;
 	DECLARE lat1 FLOAT;
 	DECLARE lat2 FLOAT;
 	DECLARE latDelta FLOAT;
@@ -522,10 +550,10 @@ BEGIN
 	DECLARE c FLOAT;
 	DECLARE d FLOAT;
 	
-	SET lat1 = RADIANS(ST_Y(point1));
-	SET lat2 = RADIANS(ST_Y(point2));
-	SET latDelta = RADIANS(ST_Y(point2) - ST_Y(point1));
-	SET lonDelta = RADIANS(ST_X(point2) - ST_X(point1));
+	SET lat1 = RADIANS(' . $ptY . '(point1));
+	SET lat2 = RADIANS(' . $ptY . '(point2));
+	SET latDelta = RADIANS(' . $ptY . '(point2) - ' . $ptY . '(point1));
+	SET lonDelta = RADIANS(' . $ptX . '(point2) - ' . $ptX . '(point1));
 	
 	SET a = SIN(latDelta / 2) * SIN(latDelta / 2) + COS(lat1) * COS(lat2) * SIN(lonDelta / 2) * SIN(lonDelta / 2);
 	SET c = 2 * ATAN2(SQRT(a), SQRT(1-a));
@@ -552,42 +580,47 @@ END;';
 	 */
 	public static function haversineSql($point1, $point2)
 	{
-		$R = 6371000;
+		// Point Property Functions
+		$ptX = DBTool::getMySQLPointPropertyFunc('X');
+		$ptY = DBTool::getMySQLPointPropertyFunc('Y');
 		
-		$lat1 = 'RADIANS(ST_Y(' . $point1 . '))';
-		$lat2 = 'RADIANS(ST_Y(' . $point2 . '))';
-		$latDelta = 'RADIANS(ST_Y(' . $point2 . ') - ST_Y(' . $point1 . '))';
-		$lonDelta = 'RADIANS(ST_X(' . $point2 . ') - ST_X(' . $point1 . '))';
+		// Earth's Radius
+		$R = 6371; // in Km
+		
+		$lat1 = 'RADIANS(' . $ptY . '(' . $point1 . '))';
+		$lat2 = 'RADIANS(' . $ptY . '(' . $point2 . '))';
+		$latDelta = 'RADIANS(' . $ptY . '(' . $point2 . ') - ' . $ptY . '(' . $point1 . '))';
+		$lonDelta = 'RADIANS(' . $ptX . '(' . $point2 . ') - ' . $ptX . '(' . $point1 . '))';
 		
 		$a = 'SIN(' . $latDelta . '/2) * SIN(' . $latDelta . '/2) + COS(' . $lat1 . ') * COS(' . $lat2 . ') * SIN(' . $lonDelta . '/2) * SIN(' . $lonDelta . '/2)';
 		$c = '2 * ATAN2(SQRT(' . $a . '), SQRT(1-' . $a . '))';
 		$formula = $R . ' * ' . $c;
 		
-		$sql = '((' . $formula . ') * 0.00621371192) AS distance';
+		// Unit Conversions
+		// If the selected Country doesn't use Miles,
+		// the formula should be used '3958.756 mi' as the Earth's radius ($R = 3958.756).
+		// So we have to convert each distance found from Mile To Km
+		if (!isMilesUsingCountry(config('country.code'))) {
+			$formula = '(' . $formula . ') * 0.62137119'; // Mile To Km (Check the 'milesToKm()' function)
+		}
+		
+		// Get the Distance calculation SQL query
+		$sql = '(' . $formula . ') AS distance';
 		
 		return $sql;
 	}
 	
-	/**
-	 * Create the MySQL Orthodromy function
-	 *
-	 * This is a polyfill of the MySQL 'ST_Distance_Sphere' function using the Orthodromy formula.
-	 *
-	 * USAGE:
-	 * (orthodromy(point(lon1, lat1), point(lon2, lat2)) * 0.00621371192) as distance
-	 *
-	 * @return bool
-	 */
 	/*
+	========================================================================================================================
 	Orthodromy Formula
 	==================
 	An orthodromic or great-circle route on the Earth's surface is the shortest possible real way between any two points.
 	
 	FORMULA
 	=======
-	Ortho(A, B) = r x acos[[cos(LatA) x cos(LatB) x cos(LongB-LongA)] + [sin(LatA) x sin(LatB)]]
+	Ortho(A, B) = R x acos[[cos(LatA) x cos(LatB) x cos(LongB-LongA)] + [sin(LatA) x sin(LatB)]]
 	
-	Where: r is the radius of the Earth (6371 kilometers, 3959 miles)
+	Where: R is the radius of the Earth (Radius = 6371 km (3959 mi))
 	
 	NOTE
 	====
@@ -598,10 +631,28 @@ END;';
 	=======
 	https://fr.wikipedia.org/wiki/Orthodromie
 	http://www.lion1906.com/Pages/english/orthodromy_and_co.html
+	========================================================================================================================
 	*/
+	/**
+	 * Create the MySQL Orthodromy function
+	 *
+	 * This is a polyfill of the MySQL 'ST_Distance_Sphere' function using the Orthodromy formula.
+	 *
+	 * USAGE:
+	 * orthodromy(point(lon1, lat1), point(lon2, lat2)) as distance
+	 *
+	 * NOTE:
+	 * Replace 6371 (the 'R' value) with 3958.756 if you want the answer in miles.
+	 *
+	 * @return bool
+	 */
 	public static function createMySQLOrthodromyFunction()
 	{
 		try {
+			
+			// Point Property Functions
+			$ptX = DBTool::getMySQLPointPropertyFunc('X');
+			$ptY = DBTool::getMySQLPointPropertyFunc('Y');
 			
 			// Drop the function, If exists
 			$sql = 'DROP FUNCTION IF EXISTS orthodromy;';
@@ -615,17 +666,17 @@ END;';
 	NO SQL DETERMINISTIC
 	COMMENT "Returns the distance in degrees on the Earth between two known points of latitude and longitude."
 BEGIN
-	DECLARE R FLOAT UNSIGNED DEFAULT 6371000;
+	DECLARE R FLOAT UNSIGNED DEFAULT 6371;
 	DECLARE lat1 FLOAT;
 	DECLARE lat2 FLOAT;
-	DECLARE lonDelta FLOAT UNSIGNED;
-	DECLARE a FLOAT UNSIGNED;
-	DECLARE c FLOAT UNSIGNED;
-	DECLARE d FLOAT UNSIGNED;
+	DECLARE lonDelta FLOAT;
+	DECLARE a FLOAT;
+	DECLARE c FLOAT;
+	DECLARE d FLOAT;
  
-	SET lat1 = RADIANS(ST_Y(point1));
-	SET lat2 = RADIANS(ST_Y(point2));
-	SET lonDelta = RADIANS(ST_X(point2) - ST_X(point1));
+	SET lat1 = RADIANS(' . $ptY . '(point1));
+	SET lat2 = RADIANS(' . $ptY . '(point2));
+	SET lonDelta = RADIANS(' . $ptX . '(point2) - ' . $ptX . '(point1));
 	
 	SET c = ACOS((COS(lat1) * COS(lat2) * COS(lonDelta)) + (SIN(lat1) * SIN(lat2)));
 	SET d = R * c;
@@ -651,16 +702,30 @@ END;';
 	 */
 	public static function orthodromySql($point1, $point2)
 	{
-		$R = 6371000;
+		// Point Property Functions
+		$ptX = DBTool::getMySQLPointPropertyFunc('X');
+		$ptY = DBTool::getMySQLPointPropertyFunc('Y');
 		
-		$lat1 = 'RADIANS(ST_Y(' . $point1 . '))';
-		$lat2 = 'RADIANS(ST_Y(' . $point2 . '))';
-		$lonDelta = 'RADIANS(ST_X(point2) - ST_X(point1))';
+		// Earth's Radius
+		$R = 6371; // in Km
+		
+		$lat1 = 'RADIANS(' . $ptY . '(' . $point1 . '))';
+		$lat2 = 'RADIANS(' . $ptY . '(' . $point2 . '))';
+		$lonDelta = 'RADIANS(' . $ptX . '(' . $point2 . ') - ' . $ptX . '(' . $point1 . '))';
 		
 		$c = 'ACOS((COS(' . $lat1 . ') * COS(' . $lat2 . ') * COS(' . $lonDelta . ')) + (SIN(' . $lat1 . ') * SIN(' . $lat2 . ')))';
 		$formula = $R . ' * ' . $c;
 		
-		$sql = '((' . $formula . ') * 0.00621371192) AS distance';
+		// Unit Conversions
+		// If the selected Country doesn't use Miles,
+		// the formula should be used '3958.756 mi' as the Earth's radius ($R = 3958.756).
+		// So we have to convert each distance found from Mile To Km
+		if (!isMilesUsingCountry(config('country.code'))) {
+			$formula = '(' . $formula . ') * 0.62137119'; // Mile To Km (Check the 'milesToKm()' function)
+		}
+		
+		// Get the Distance calculation SQL query
+		$sql = '(' . $formula . ') AS distance';
 		
 		return $sql;
 	}

@@ -203,7 +203,7 @@ trait AsPivot
     /**
      * Determine if the pivot model or given attributes has timestamp attributes.
      *
-     * @param  array|null  $attributes
+     * @param  $attributes  array|null
      * @return bool
      */
     public function hasTimestampAttributes($attributes = null)

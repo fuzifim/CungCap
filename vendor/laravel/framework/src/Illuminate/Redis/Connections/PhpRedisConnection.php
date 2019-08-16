@@ -100,7 +100,7 @@ class PhpRedisConnection extends Connection implements ConnectionContract
      *
      * @param  string  $key
      * @param  dynamic  $dictionary
-     * @return array
+     * @return int
      */
     public function hmget($key, ...$dictionary)
     {
@@ -149,7 +149,7 @@ class PhpRedisConnection extends Connection implements ConnectionContract
      *
      * @param  string  $key
      * @param  int  $count
-     * @param  mixed  $value
+     * @param  $value  $value
      * @return int|false
      */
     public function lrem($key, $count, $value)

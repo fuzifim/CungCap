@@ -22,9 +22,9 @@ return [
     'search-cat' => 'category/{catSlug}',
     't-search-cat' => 'category',
     'v-search-cat' => 'category/:catSlug',
-    'search-city' => 'ads/{city}/{id}',
-    't-search-city' => 'ads',
-    'v-search-city' => 'ads/:city/:id',
+    'search-city' => 'free-ads/{city}/{id}',
+    't-search-city' => 'free-ads',
+    'v-search-city' => 'free-ads/:city/:id',
     'search-user' => 'users/{id}/ads',
     't-search-user' => 'users',
     'v-search-user' => 'users/:id/ads',
@@ -35,4 +35,3 @@ return [
     't-search-tag' => 'tag',
     'v-search-tag' => 'tag/:tag',
 ];
-

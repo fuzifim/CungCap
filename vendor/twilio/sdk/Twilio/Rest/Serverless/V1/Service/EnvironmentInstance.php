@@ -33,7 +33,6 @@ use Twilio\Version;
 class EnvironmentInstance extends InstanceResource {
     protected $_variables = null;
     protected $_deployments = null;
-    protected $_logs = null;
 
     /**
      * Initialize the EnvironmentInstance
@@ -121,15 +120,6 @@ class EnvironmentInstance extends InstanceResource {
      */
     protected function getDeployments() {
         return $this->proxy()->deployments;
-    }
-
-    /**
-     * Access the logs
-     *
-     * @return \Twilio\Rest\Serverless\V1\Service\Environment\LogList
-     */
-    protected function getLogs() {
-        return $this->proxy()->logs;
     }
 
     /**

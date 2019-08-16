@@ -223,7 +223,6 @@ if (
 								{{ t('Powered by') }} <a href="http://www.bedigit.com" title="BedigitCom">Bedigit</a>.
 							@endif
 						@endif
-						<a href="//www.dmca.com/Protection/Status.aspx?ID=bf2e9f17-e38d-4088-8f5c-db9ae0aa5ed9" title="DMCA.com Protection Status" class="dmca-badge"> <img src ="https://images.dmca.com/Badges/dmca_protected_sml_120m.png?ID=bf2e9f17-e38d-4088-8f5c-db9ae0aa5ed9"  alt="DMCA.com Protection Status" /></a>  <script src="https://images.dmca.com/Badges/DMCABadgeHelper.min.js"> </script>
 					</div>
 				</div>
 			

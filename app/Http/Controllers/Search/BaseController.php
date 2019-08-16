@@ -172,5 +172,18 @@ class BaseController extends FrontController
             return $modalAdmins;
         });
         view()->share('modalAdmins', $modalAdmins);
+        
+        // Get Distance Range
+		$distanceRange = [];
+		if (config('settings.listing.cities_extended_searches')) {
+			for (
+				$iDist = 0;
+				$iDist <= config('settings.listing.search_distance_max', 500);
+				$iDist += config('settings.listing.search_distance_interval', 50)
+			) {
+				$distanceRange[$iDist] = $iDist;
+			}
+		}
+		view()->share('distanceRange', $distanceRange);
     }
 }

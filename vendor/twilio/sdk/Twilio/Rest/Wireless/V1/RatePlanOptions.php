@@ -21,33 +21,24 @@ abstract class RatePlanOptions {
      * @param bool $dataEnabled Defines whether SIMs are capable of using
      *                          GPRS/3G/LTE data connectivity.
      * @param int $dataLimit Network-enforced limit specifying the total Megabytes
-     *                       of data usage allowed during one month on the 'home'
-     *                       (T-Mobile USA) network.
+     *                       of data usage allowed during one month on the home
+     *                       network.
      * @param string $dataMetering The model by which to meter data usage, in
-     *                             accordance with the available data metering
+     *                             accordance with the two available data metering
      *                             models.
      * @param bool $messagingEnabled Defines whether SIMs are capable of making and
      *                               sending and receiving SMS messages via either
      *                               Commands or Programmable SMS APIs.
      * @param bool $voiceEnabled Defines whether SIMs are capable of making and
      *                           receiving voice calls.
-     * @param bool $nationalRoamingEnabled Defines whether SIMs can roam onto
-     *                                     networks other than the 'home' (T-Mobile
-     *                                     USA) network in the United States.
-     * @param string $internationalRoaming Defines whether SIMs are capable of
-     *                                     using GPRS/3G/4G/LTE data connectivity
-     *                                     and messaging outside of the United
-     *                                     States.
+     * @param bool $nationalRoamingEnabled Defines whether SIMs can roam onto other
+     *                                     networks in the SIM's home country.
+     * @param string $internationalRoaming The international_roaming
      * @param int $nationalRoamingDataLimit Network-enforced limit specifying the
-     *                                      total Megabytes of data usage allowed
-     *                                      during one month on networks in the
-     *                                      United States other than the 'home'
-     *                                      (T-Mobile USA) network.
-     * @param int $internationalRoamingDataLimit Network-enforced limit specifying
-     *                                           the total Megabytes of
-     *                                           international roaming (non-US)
-     *                                           data usage (download and upload
-     *                                           combined) allowed during one month.
+     *                                      total Megabytes of national roaming
+     *                                      data usage allowed during one month.
+     * @param int $internationalRoamingDataLimit The
+     *                                           international_roaming_data_limit
      * @return CreateRatePlanOptions Options builder
      */
     public static function create($uniqueName = Values::NONE, $friendlyName = Values::NONE, $dataEnabled = Values::NONE, $dataLimit = Values::NONE, $dataMetering = Values::NONE, $messagingEnabled = Values::NONE, $voiceEnabled = Values::NONE, $nationalRoamingEnabled = Values::NONE, $internationalRoaming = Values::NONE, $nationalRoamingDataLimit = Values::NONE, $internationalRoamingDataLimit = Values::NONE) {
@@ -75,33 +66,24 @@ class CreateRatePlanOptions extends Options {
      * @param bool $dataEnabled Defines whether SIMs are capable of using
      *                          GPRS/3G/LTE data connectivity.
      * @param int $dataLimit Network-enforced limit specifying the total Megabytes
-     *                       of data usage allowed during one month on the 'home'
-     *                       (T-Mobile USA) network.
+     *                       of data usage allowed during one month on the home
+     *                       network.
      * @param string $dataMetering The model by which to meter data usage, in
-     *                             accordance with the available data metering
+     *                             accordance with the two available data metering
      *                             models.
      * @param bool $messagingEnabled Defines whether SIMs are capable of making and
      *                               sending and receiving SMS messages via either
      *                               Commands or Programmable SMS APIs.
      * @param bool $voiceEnabled Defines whether SIMs are capable of making and
      *                           receiving voice calls.
-     * @param bool $nationalRoamingEnabled Defines whether SIMs can roam onto
-     *                                     networks other than the 'home' (T-Mobile
-     *                                     USA) network in the United States.
-     * @param string $internationalRoaming Defines whether SIMs are capable of
-     *                                     using GPRS/3G/4G/LTE data connectivity
-     *                                     and messaging outside of the United
-     *                                     States.
+     * @param bool $nationalRoamingEnabled Defines whether SIMs can roam onto other
+     *                                     networks in the SIM's home country.
+     * @param string $internationalRoaming The international_roaming
      * @param int $nationalRoamingDataLimit Network-enforced limit specifying the
-     *                                      total Megabytes of data usage allowed
-     *                                      during one month on networks in the
-     *                                      United States other than the 'home'
-     *                                      (T-Mobile USA) network.
-     * @param int $internationalRoamingDataLimit Network-enforced limit specifying
-     *                                           the total Megabytes of
-     *                                           international roaming (non-US)
-     *                                           data usage (download and upload
-     *                                           combined) allowed during one month.
+     *                                      total Megabytes of national roaming
+     *                                      data usage allowed during one month.
+     * @param int $internationalRoamingDataLimit The
+     *                                           international_roaming_data_limit
      */
     public function __construct($uniqueName = Values::NONE, $friendlyName = Values::NONE, $dataEnabled = Values::NONE, $dataLimit = Values::NONE, $dataMetering = Values::NONE, $messagingEnabled = Values::NONE, $voiceEnabled = Values::NONE, $nationalRoamingEnabled = Values::NONE, $internationalRoaming = Values::NONE, $nationalRoamingDataLimit = Values::NONE, $internationalRoamingDataLimit = Values::NONE) {
         $this->options['uniqueName'] = $uniqueName;
@@ -154,11 +136,11 @@ class CreateRatePlanOptions extends Options {
     }
 
     /**
-     * Network-enforced limit specifying the total Megabytes of data usage (download and upload combined) allowed during one month on the 'home' (T-Mobile USA) network. Metering begins on the day of activation and ends on the same day of the following month.  Max value is 2TB. Default value is `1000`.
+     * Network-enforced limit specifying the total Megabytes of data usage (download and upload combined) allowed during one month on the home network. Metering begins on the day of activation and ends on the same day of the following month.  Max value is 2TB.
      *
      * @param int $dataLimit Network-enforced limit specifying the total Megabytes
-     *                       of data usage allowed during one month on the 'home'
-     *                       (T-Mobile USA) network.
+     *                       of data usage allowed during one month on the home
+     *                       network.
      * @return $this Fluent Builder
      */
     public function setDataLimit($dataLimit) {
@@ -167,10 +149,10 @@ class CreateRatePlanOptions extends Options {
     }
 
     /**
-     * The model by which to meter data usage, in accordance with the available [data metering models](https://www.twilio.com/docs/wireless/api/rate-plan#payg-vs-quota-data-plans). Valid options are `payg` and `quota-1`, `quota-10`, and `quota-50`. Defaults to `payg`.
+     * The model by which to meter data usage, in accordance with the two available [data metering models](https://www.twilio.com/docs/api/wireless/rest-api/rate-plan#explanation-of-pooled-vs-individual). Valid options are `pooled` and `individual`.
      *
      * @param string $dataMetering The model by which to meter data usage, in
-     *                             accordance with the available data metering
+     *                             accordance with the two available data metering
      *                             models.
      * @return $this Fluent Builder
      */
@@ -205,11 +187,10 @@ class CreateRatePlanOptions extends Options {
     }
 
     /**
-     * Defines whether SIMs can roam onto networks other than the 'home' (T-Mobile USA) network in the United States. See ['national' roaming](https://www.twilio.com/docs/api/wireless/rest-api/rate-plan#national-roaming).
+     * Defines whether SIMs can roam onto other networks in the SIM's home country. See ['national' roaming](https://www.twilio.com/docs/api/wireless/rest-api/rate-plan#national-roaming).
      *
-     * @param bool $nationalRoamingEnabled Defines whether SIMs can roam onto
-     *                                     networks other than the 'home' (T-Mobile
-     *                                     USA) network in the United States.
+     * @param bool $nationalRoamingEnabled Defines whether SIMs can roam onto other
+     *                                     networks in the SIM's home country.
      * @return $this Fluent Builder
      */
     public function setNationalRoamingEnabled($nationalRoamingEnabled) {
@@ -218,12 +199,9 @@ class CreateRatePlanOptions extends Options {
     }
 
     /**
-     * Defines whether SIMs are capable of using GPRS/3G/4G/LTE data connectivity and messaging outside of the United States. Acceptable values are `data` and `messaging`.
+     * The international_roaming
      *
-     * @param string $internationalRoaming Defines whether SIMs are capable of
-     *                                     using GPRS/3G/4G/LTE data connectivity
-     *                                     and messaging outside of the United
-     *                                     States.
+     * @param string $internationalRoaming The international_roaming
      * @return $this Fluent Builder
      */
     public function setInternationalRoaming($internationalRoaming) {
@@ -232,13 +210,11 @@ class CreateRatePlanOptions extends Options {
     }
 
     /**
-     * Network-enforced limit specifying the total Megabytes of national roaming data usage (download and upload combined) allowed during one month on networks in the United States other than the 'home' (T-Mobile USA) network. See ['national' roaming](https://www.twilio.com/docs/api/wireless/rest-api/rate-plan#national-roaming). Max value is 2TB.
+     * Network-enforced limit specifying the total Megabytes of national roaming data usage (download and upload combined) allowed during one month.  Max value is 2TB. If unspecified, the default value is the lesser of `DataLimit` and 1000MB.
      *
      * @param int $nationalRoamingDataLimit Network-enforced limit specifying the
-     *                                      total Megabytes of data usage allowed
-     *                                      during one month on networks in the
-     *                                      United States other than the 'home'
-     *                                      (T-Mobile USA) network.
+     *                                      total Megabytes of national roaming
+     *                                      data usage allowed during one month.
      * @return $this Fluent Builder
      */
     public function setNationalRoamingDataLimit($nationalRoamingDataLimit) {
@@ -247,13 +223,10 @@ class CreateRatePlanOptions extends Options {
     }
 
     /**
-     * Network-enforced limit specifying the total Megabytes of international roaming (non-US) data usage (download and upload combined) allowed during one month. Max value is 2TB. Default value is the lesser of `DataLimit` and `1000`MB.
+     * The international_roaming_data_limit
      *
-     * @param int $internationalRoamingDataLimit Network-enforced limit specifying
-     *                                           the total Megabytes of
-     *                                           international roaming (non-US)
-     *                                           data usage (download and upload
-     *                                           combined) allowed during one month.
+     * @param int $internationalRoamingDataLimit The
+     *                                           international_roaming_data_limit
      * @return $this Fluent Builder
      */
     public function setInternationalRoamingDataLimit($internationalRoamingDataLimit) {

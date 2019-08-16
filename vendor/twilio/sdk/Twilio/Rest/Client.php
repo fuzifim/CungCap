@@ -23,7 +23,6 @@ use Twilio\VersionInfo;
  * @property \Twilio\Rest\Authy $authy
  * @property \Twilio\Rest\Autopilot $autopilot
  * @property \Twilio\Rest\Chat $chat
- * @property \Twilio\Rest\Conversations $conversations
  * @property \Twilio\Rest\Fax $fax
  * @property \Twilio\Rest\FlexApi $flexApi
  * @property \Twilio\Rest\Insights $insights
@@ -103,7 +102,6 @@ class Client {
     protected $_authy = null;
     protected $_autopilot = null;
     protected $_chat = null;
-    protected $_conversations = null;
     protected $_fax = null;
     protected $_flexApi = null;
     protected $_insights = null;
@@ -650,18 +648,6 @@ class Client {
             $this->_chat = new Chat($this);
         }
         return $this->_chat;
-    }
-
-    /**
-     * Access the Conversations Twilio Domain
-     *
-     * @return \Twilio\Rest\Conversations Conversations Twilio Domain
-     */
-    protected function getConversations() {
-        if (!$this->_conversations) {
-            $this->_conversations = new Conversations($this);
-        }
-        return $this->_conversations;
     }
 
     /**

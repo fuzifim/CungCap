@@ -300,7 +300,7 @@ class RawQueries
 		}
 		
 		// Count all entries
-		$sql = "SELECT count(*) AS total FROM (" . $sql . ") AS x";
+		$sql = "SELECT COUNT(*) AS total FROM (" . $sql . ") AS x";
 		$all = self::execute($sql, $this->bindings);
 		$count['all'] = (isset($all[0])) ? $all[0]->total : 0;
 		
@@ -311,7 +311,7 @@ class RawQueries
 		if ($postTypes->count() > 0) {
 			foreach ($postTypes as $postType) {
 				$wherePostType = array_merge($where, ['tPost.post_type_id' => ' = ' . $postType->tid]);
-				$sqlPostType = "SELECT count(*) AS total FROM (" . $this->getSqlStatements($wherePostType) . ") AS x";
+				$sqlPostType = "SELECT COUNT(*) AS total FROM (" . $this->getSqlStatements($wherePostType) . ") AS x";
 				$allByPostType = self::execute($sqlPostType, $this->bindings);
 				$count[$postType->tid] = (isset($allByPostType[0])) ? $allByPostType[0]->total : 0;
 			}
@@ -648,6 +648,11 @@ class RawQueries
 		// Fix the distance value that have to be greater than 0 (at least).
 		// Fix this locally inside the function (to prevent distance display confusion)
 		$distance = self::$distance;
+		if (!isMilesUsingCountry(config('country.code'))) {
+			$distance = milesToKm($distance);
+		} else {
+			$distance = kmToMiles($distance);
+		}
 		if ($distance <= 0) {
 			$distance = 1;
 		}
@@ -682,8 +687,36 @@ class RawQueries
 			
 			return $this->setLocationByCityId($city->id);
 		} else {
-			// Use the MySQL Distance Calculation function
-			$sql = '(' . $distanceCalculationFormula . '(POINT(tPost.lon, tPost.lat), POINT(:longitude, :latitude)) * 0.00621371192) AS distance';
+			// Call the MySQL function
+			$formula = $distanceCalculationFormula . '(POINT(tPost.lon, tPost.lat), POINT(:longitude, :latitude))';
+			
+			// Unit Conversions
+			if ($distanceCalculationFormula == 'ST_Distance_Sphere') {
+				/*
+				The general rule for units is that the output length units are the same as the input length units.
+				
+				The OSM way geometry data has length units of degrees of latitude and longitude (SRID=4326).
+				Therefore, the output units from 'ST_Distance' will also have length units of degrees, which are not really useful.
+				
+				There are several things you can do:
+				- Use 'ST_Distance_Sphere' for fast/approximate distances in metres
+				- Use 'ST_Distance_Spheroid' for accuracy distances in metres
+				- Convert the lat/long geometry data types to geography, which automatically makes 'ST_Distance' and other functions to use linear units of metres
+				
+				More Info: https://stackoverflow.com/questions/13222061/unit-of-return-value-of-st-distance
+				*/
+				$formula = $formula . ' / 1000'; // Metres To Km
+			}
+			
+			// If the selected Country doesn't use Miles,
+			// the formula should be used '3958.756 mi' as the Earth's radius ($R = 3958.756).
+			// So we have to convert each distance found from Mile To Km
+			if (!isMilesUsingCountry(config('country.code'))) {
+				$formula = $formula . ' * 0.62137119'; // Mile To Km (Check the 'milesToKm()' function)
+			}
+			
+			// Get the Distance calculation SQL query
+			$sql = '(' . $formula . ') AS distance';
 			
 			$this->arrSql->select[] = $sql;
 			$this->arrSql->having['distance'] = ' <= :distance';

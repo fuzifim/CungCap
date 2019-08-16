@@ -119,13 +119,13 @@
 											value="{!! qsurl($fullUrlNoParams, array_merge(request()->except('orderBy'), ['orderBy'=>'date']), null, false) !!}">
 										{{ t('Date') }}
 									</option>
-									@if (isset($isCitySearch) and $isCitySearch and config('settings.listing.cities_extended_searches'))
-										@for($iDist = 0; $iDist <= config('settings.listing.search_distance_max', 500); $iDist += config('settings.listing.search_distance_interval', 50))
-											<option{{ (request()->get('distance', config('settings.listing.search_distance_default', 100))==$iDist) ? ' selected="selected"' : '' }}
-													value="{!! qsurl($fullUrlNoParams, array_merge(request()->except('distance'), ['distance' => $iDist]), null, false) !!}">
-												{{ t('Around :distance :unit', ['distance' => $iDist, 'unit' => unitOfLength()]) }}
+									@if (isset($isCitySearch) and $isCitySearch and isset($distanceRange) and !empty($distanceRange))
+										@foreach($distanceRange as $key => $value)
+											<option{{ (request()->get('distance', config('settings.listing.search_distance_default', 100))==$value) ? ' selected="selected"' : '' }}
+													value="{!! qsurl($fullUrlNoParams, array_merge(request()->except('distance'), ['distance' => $value]), null, false) !!}">
+												{{ t('Around :distance :unit', ['distance' => $value, 'unit' => getDistanceUnit()]) }}
 											</option>
-										@endfor
+										@endforeach
 									@endif
 									@if (config('plugins.reviews.installed'))
 										<option{{ (request()->get('orderBy')=='rating') ? ' selected="selected"' : '' }}
@@ -196,14 +196,14 @@
 													{{ t('Date') }}
 												</a>
 											</li>
-											@if (isset($isCitySearch) and $isCitySearch and config('settings.listing.cities_extended_searches'))
-												@for($iDist = 0; $iDist <= config('settings.listing.search_distance_max', 500); $iDist += config('settings.listing.search_distance_interval', 50))
+											@if (isset($isCitySearch) and $isCitySearch and isset($distanceRange) and !empty($distanceRange))
+												@foreach($distanceRange as $key => $value)
 													<li>
-														<a href="{!! qsurl($fullUrlNoParams, array_merge(request()->except('distance'), ['distance' => $iDist]), null, false) !!}" rel="nofollow">
-															{{ t('Around :distance :unit', ['distance' => $iDist, 'unit' => unitOfLength()]) }}
+														<a href="{!! qsurl($fullUrlNoParams, array_merge(request()->except('distance'), ['distance' => $value]), null, false) !!}" rel="nofollow">
+															{{ t('Around :distance :unit', ['distance' => $value, 'unit' => getDistanceUnit()]) }}
 														</a>
 													</li>
-												@endfor
+												@endforeach
 											@endif
 											@if (config('plugins.reviews.installed'))
 												<li>
