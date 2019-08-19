@@ -69,7 +69,7 @@
                 toolbar = ['bold','italic','underline','fontScale','color','|','alignment','ol','ul','blockquote','table','image','link'];
                 mobileToolbar = ["bold", "italic", "underline", "ul", "ol"];
                 if (mobilecheck()) {
-                    //toolbar = mobileToolbar;
+                    toolbar = toolbar;
                 }
                 allowedTags = ['br','span','a','img','b','strong','i','strike','u','font','p','ul','ol','li','blockquote','pre','h1','h2','h3','h4','hr','table'];
                 editor = new Simditor({
