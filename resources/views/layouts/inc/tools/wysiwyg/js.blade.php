@@ -66,7 +66,7 @@
             $(function() {
                 var $preview, editor, mobileToolbar, toolbar, allowedTags;
                 Simditor.locale = '{{ config('app.locale') }}';
-                toolbar = ['bold','italic','underline','fontScale','color','|','alignment','ol','ul','blockquote','table','image','link'];
+                toolbar = ['bold','italic','underline','fontScale','color','|','alignment','ol','ul','blockquote','table','link'];
                 mobileToolbar = ["bold", "italic", "underline", "ul", "ol"];
                 if (mobilecheck()) {
                     toolbar = toolbar;
