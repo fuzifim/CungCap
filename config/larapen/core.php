@@ -223,10 +223,15 @@ return [
      |-----------------------------------------------------------------------------------------------
      | Miles unit use countries
      |-----------------------------------------------------------------------------------------------
+     | While most countries replaced the mile with the kilometre when switching to the International System of Units,
+     | the international mile continues to be used in some countries, such as:
+     | Liberia (LR), Myanmar (MM), the United Kingdom (UK) and the United States (US).
+     |
+     | More information here: https://en.wikipedia.org/wiki/Mile
      |
      */
     
-    'mileUseCountries' => ['US','UK'],
+    'mileUseCountries' => ['LR', 'MM', 'UK', 'US'],
 	
 	/*
      |-----------------------------------------------------------------------------------------------

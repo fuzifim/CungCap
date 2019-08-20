@@ -124,7 +124,7 @@ if (config('settings.listing.display_mode') == '.compact-view') {
 										@endif
 										<span class="item-location">
 											<i class="icon-location-2"></i>&nbsp;
-										<a href="{!! qsurl(config('app.locale').'/'.trans('routes.v-search', ['countryCode' => config('country.icode')]), array_merge(request()->except(['l', 'location']), ['l'=>$post->city_id]), null, false) !!}" class="info-link">{{ $city->name }}</a> {{ (isset($post->distance)) ? '- ' . round(convertDistanceUnit($post->distance), 2) . getDistanceUnit() : '' }}
+										<a href="{!! qsurl(config('app.locale').'/'.trans('routes.v-search', ['countryCode' => config('country.icode')]), array_merge(request()->except(['l', 'location']), ['l'=>$post->city_id]), null, false) !!}" class="info-link">{{ $city->name }}</a> {{ (isset($post->distance)) ? '- ' . round($post->distance, 2) . getDistanceUnit() : '' }}
 										</span>
 									</span>
 								</div>

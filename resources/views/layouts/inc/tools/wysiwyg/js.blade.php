@@ -66,10 +66,10 @@
             $(function() {
                 var $preview, editor, mobileToolbar, toolbar, allowedTags;
                 Simditor.locale = '{{ config('app.locale') }}';
-                toolbar = ['bold','italic','underline','fontScale','color','|','alignment','ol','ul','blockquote','table','link'];
+                toolbar = ['bold','italic','underline','fontScale','color','|','ol','ul','blockquote','table','link'];
                 mobileToolbar = ["bold", "italic", "underline", "ul", "ol"];
                 if (mobilecheck()) {
-                    toolbar = toolbar;
+                    toolbar = mobileToolbar;
                 }
                 allowedTags = ['br','span','a','img','b','strong','i','strike','u','font','p','ul','ol','li','blockquote','pre','h1','h2','h3','h4','hr','table'];
                 editor = new Simditor({

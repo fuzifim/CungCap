@@ -512,12 +512,28 @@ class DBTool
 	 * Create the MySQL Haversine function
 	 *
 	 * This is a polyfill of the MySQL 'ST_Distance_Sphere' function using the Haversine formula.
+	 * ---------------
+	 * Unit Conversion
+	 * ---------------
+	 * The general rule for units is that the output length units are the same as the input length units.
 	 *
-	 * USAGE:
-	 * haversine(point(lon1, lat1), point(lon2, lat2)) as distance
+	 * The OSM way geometry data has length units of degrees of latitude and longitude (SRID=4326).
+	 * Therefore, the output units from 'ST_Distance' will also have length units of degrees, which are not really useful.
 	 *
-	 * NOTE:
-	 * Replace 6371 (the 'R' value) with 3958.756 if you want the answer in miles.
+	 * There are several things you can do:
+	 * - Use 'ST_Distance_Sphere' for fast/approximate distances in metres
+	 * - Use 'ST_Distance_Spheroid' for accuracy distances in metres
+	 * - Convert the lat/long geometry data types to geography, which automatically makes 'ST_Distance' and other functions to use linear units of metres
+	 *
+	 * More Info: https://stackoverflow.com/questions/13222061/unit-of-return-value-of-st-distance
+	 * ---------------
+	 *
+	 * USAGE
+	 * - Results in Km   : (haversine(POINT(lon1, lat1), POINT(lon2, lat2)) / 1000) AS distance
+	 * - Results in Miles: ((haversine(POINT(lon1, lat1), POINT(lon2, lat2)) / 1000) * 0.62137119) AS distance
+	 * Where
+	 * - X / 1000        => Meters To Km
+	 * - X * 0.621371192 => Km To Miles
 	 *
 	 * @return bool
 	 */
@@ -525,23 +541,21 @@ class DBTool
 	{
 		try {
 			
-			// Point Property Functions
-			$ptX = DBTool::getMySQLPointPropertyFunc('X');
-			$ptY = DBTool::getMySQLPointPropertyFunc('Y');
-			
 			// Drop the function, If exists
 			$sql = 'DROP FUNCTION IF EXISTS haversine;';
 			\DB::statement($sql);
 			
+			// Point Property Functions
+			$ptX = DBTool::getMySQLPointPropertyFunc('X');
+			$ptY = DBTool::getMySQLPointPropertyFunc('Y');
+			
 			// Create the function
-			// Remove " DELIMITER $$ " (also $$ DELIMITER ; at the end)
-			// I think DELIMITER is no longer required with PHP PDO
 			$sql = 'CREATE FUNCTION haversine (point1 POINT, point2 POINT)
 	RETURNS FLOAT
 	NO SQL DETERMINISTIC
 	COMMENT "Returns the distance in degrees on the Earth between two known points of latitude and longitude."
 BEGIN
-	DECLARE R INTEGER DEFAULT 6371;
+	DECLARE R INTEGER DEFAULT 6371000;
 	DECLARE lat1 FLOAT;
 	DECLARE lat2 FLOAT;
 	DECLARE latDelta FLOAT;
@@ -574,6 +588,8 @@ END;';
 	/**
 	 * Get the MySQL Haversine formula as SQL string
 	 *
+	 * NOTE: Replace 6371 (the '$R' value) with 3958.756 if you want the answer in miles.
+	 *
 	 * @param $point1
 	 * @param $point2
 	 * @return string
@@ -584,8 +600,11 @@ END;';
 		$ptX = DBTool::getMySQLPointPropertyFunc('X');
 		$ptY = DBTool::getMySQLPointPropertyFunc('Y');
 		
-		// Earth's Radius
+		// Earth's Radius (6371 km OR 3958.756 mi)
 		$R = 6371; // in Km
+		if (isMilesUsingCountry(config('country.code'))) {
+			$R = 3958.756; // in Miles
+		}
 		
 		$lat1 = 'RADIANS(' . $ptY . '(' . $point1 . '))';
 		$lat2 = 'RADIANS(' . $ptY . '(' . $point2 . '))';
@@ -595,14 +614,6 @@ END;';
 		$a = 'SIN(' . $latDelta . '/2) * SIN(' . $latDelta . '/2) + COS(' . $lat1 . ') * COS(' . $lat2 . ') * SIN(' . $lonDelta . '/2) * SIN(' . $lonDelta . '/2)';
 		$c = '2 * ATAN2(SQRT(' . $a . '), SQRT(1-' . $a . '))';
 		$formula = $R . ' * ' . $c;
-		
-		// Unit Conversions
-		// If the selected Country doesn't use Miles,
-		// the formula should be used '3958.756 mi' as the Earth's radius ($R = 3958.756).
-		// So we have to convert each distance found from Mile To Km
-		if (!isMilesUsingCountry(config('country.code'))) {
-			$formula = '(' . $formula . ') * 0.62137119'; // Mile To Km (Check the 'milesToKm()' function)
-		}
 		
 		// Get the Distance calculation SQL query
 		$sql = '(' . $formula . ') AS distance';
@@ -637,12 +648,28 @@ END;';
 	 * Create the MySQL Orthodromy function
 	 *
 	 * This is a polyfill of the MySQL 'ST_Distance_Sphere' function using the Orthodromy formula.
+	 * ---------------
+	 * Unit Conversion
+	 * ---------------
+	 * The general rule for units is that the output length units are the same as the input length units.
 	 *
-	 * USAGE:
-	 * orthodromy(point(lon1, lat1), point(lon2, lat2)) as distance
+	 * The OSM way geometry data has length units of degrees of latitude and longitude (SRID=4326).
+	 * Therefore, the output units from 'ST_Distance' will also have length units of degrees, which are not really useful.
 	 *
-	 * NOTE:
-	 * Replace 6371 (the 'R' value) with 3958.756 if you want the answer in miles.
+	 * There are several things you can do:
+	 * - Use 'ST_Distance_Sphere' for fast/approximate distances in metres
+	 * - Use 'ST_Distance_Spheroid' for accuracy distances in metres
+	 * - Convert the lat/long geometry data types to geography, which automatically makes 'ST_Distance' and other functions to use linear units of metres
+	 *
+	 * More Info: https://stackoverflow.com/questions/13222061/unit-of-return-value-of-st-distance
+	 * ---------------
+	 *
+	 * USAGE
+	 * - Results in Km   : (orthodromy(POINT(lon1, lat1), POINT(lon2, lat2)) / 1000) AS distance
+	 * - Results in Miles: ((orthodromy(POINT(lon1, lat1), POINT(lon2, lat2)) / 1000) * 0.62137119) AS distance
+	 * Where
+	 * - X / 1000        => Meters To Km
+	 * - X * 0.621371192 => Km To Miles
 	 *
 	 * @return bool
 	 */
@@ -650,23 +677,21 @@ END;';
 	{
 		try {
 			
-			// Point Property Functions
-			$ptX = DBTool::getMySQLPointPropertyFunc('X');
-			$ptY = DBTool::getMySQLPointPropertyFunc('Y');
-			
 			// Drop the function, If exists
 			$sql = 'DROP FUNCTION IF EXISTS orthodromy;';
 			\DB::statement($sql);
 			
+			// Point Property Functions
+			$ptX = DBTool::getMySQLPointPropertyFunc('X');
+			$ptY = DBTool::getMySQLPointPropertyFunc('Y');
+			
 			// Create the function
-			// Remove " DELIMITER $$ " (also $$ DELIMITER ; at the end)
-			// I think DELIMITER is no longer required with PHP PDO
 			$sql = 'CREATE FUNCTION orthodromy (point1 POINT, point2 POINT)
 	RETURNS FLOAT
 	NO SQL DETERMINISTIC
 	COMMENT "Returns the distance in degrees on the Earth between two known points of latitude and longitude."
 BEGIN
-	DECLARE R FLOAT UNSIGNED DEFAULT 6371;
+	DECLARE R FLOAT UNSIGNED DEFAULT 6371000;
 	DECLARE lat1 FLOAT;
 	DECLARE lat2 FLOAT;
 	DECLARE lonDelta FLOAT;
@@ -696,6 +721,8 @@ END;';
 	/**
 	 * Get the MySQL Orthodromy formula as SQL string
 	 *
+	 * NOTE: Replace 6371 (the '$R' value) with 3958.756 if you want the answer in miles.
+	 *
 	 * @param $point1
 	 * @param $point2
 	 * @return string
@@ -706,8 +733,11 @@ END;';
 		$ptX = DBTool::getMySQLPointPropertyFunc('X');
 		$ptY = DBTool::getMySQLPointPropertyFunc('Y');
 		
-		// Earth's Radius
+		// Earth's Radius (6371 km OR 3958.756 mi)
 		$R = 6371; // in Km
+		if (isMilesUsingCountry(config('country.code'))) {
+			$R = 3958.756; // in Miles
+		}
 		
 		$lat1 = 'RADIANS(' . $ptY . '(' . $point1 . '))';
 		$lat2 = 'RADIANS(' . $ptY . '(' . $point2 . '))';
@@ -715,14 +745,6 @@ END;';
 		
 		$c = 'ACOS((COS(' . $lat1 . ') * COS(' . $lat2 . ') * COS(' . $lonDelta . ')) + (SIN(' . $lat1 . ') * SIN(' . $lat2 . ')))';
 		$formula = $R . ' * ' . $c;
-		
-		// Unit Conversions
-		// If the selected Country doesn't use Miles,
-		// the formula should be used '3958.756 mi' as the Earth's radius ($R = 3958.756).
-		// So we have to convert each distance found from Mile To Km
-		if (!isMilesUsingCountry(config('country.code'))) {
-			$formula = '(' . $formula . ') * 0.62137119'; // Mile To Km (Check the 'milesToKm()' function)
-		}
 		
 		// Get the Distance calculation SQL query
 		$sql = '(' . $formula . ') AS distance';
